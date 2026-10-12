@@ -496,7 +496,7 @@ body {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 6px;
-    }
+       }
 
     .nav-title {
         grid-column: 1 / -1;

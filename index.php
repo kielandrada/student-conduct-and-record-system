@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password     = $_POST['password'];
     $selectedRole = $_POST['userType'];
  
-    if (empty($email) || empty($password)) {
+    if (empty($email) || empty($password)) {    
         $error = "Punuan ang email at password.";
     } else {
  
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Conduct and Guidance Record</title>
-    <link rel="stylesheet" href="style.css">
+   <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
 </head>
 <body>
