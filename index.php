@@ -110,6 +110,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label class="remember-me"><input type="checkbox"> Remember Me</label>
                 </div>
 
+                <p class="default-credentials">
+                    Default staff login: <strong>staff@gmail.com</strong> / <strong>staff123</strong>
+                </p>
+
                 <button type="submit" class="btn" id="signInButton" name="SignIn">Sign In as Student</button>
             </form>
         </div>

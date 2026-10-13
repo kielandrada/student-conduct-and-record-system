@@ -6,7 +6,28 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     exit();
 }
 
-$studentName = htmlspecialchars($_SESSION['gmail']);
+require 'db_connect.php';
+
+$studentId = (int) $_SESSION['user_id'];
+$studentName = htmlspecialchars($_SESSION['gmail'], ENT_QUOTES, 'UTF-8');
+$caseCount = 0;
+$monthlyCaseCount = 0;
+$studentCases = [];
+$escape = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+
+if ($pdo->query("SHOW TABLES LIKE 'conduct_cases'")->fetchColumn()) {
+    $caseCountQuery = $pdo->prepare('SELECT COUNT(*) FROM conduct_cases WHERE student_id = ?');
+    $caseCountQuery->execute([$studentId]);
+    $caseCount = (int) $caseCountQuery->fetchColumn();
+
+    $monthlyCountQuery = $pdo->prepare("SELECT COUNT(*) FROM conduct_cases WHERE student_id = ? AND created_at >= DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')");
+    $monthlyCountQuery->execute([$studentId]);
+    $monthlyCaseCount = (int) $monthlyCountQuery->fetchColumn();
+
+    $studentCaseQuery = $pdo->prepare('SELECT case_title, description, incident_date FROM conduct_cases WHERE student_id = ? ORDER BY created_at DESC LIMIT 10');
+    $studentCaseQuery->execute([$studentId]);
+    $studentCases = $studentCaseQuery->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 
 <!DOCTYPE html>
@@ -46,26 +67,31 @@ $studentName = htmlspecialchars($_SESSION['gmail']);
 
                 <div class="summary-row">
                     <div class="summary-box">
-                        <div class="summary-label">Cases</div>
-                        <div class="summary-value">2</div>
+                        <div class="summary-label">My Cases</div>
+                        <div class="summary-value"><?= $caseCount ?></div>
                     </div>
                     <div class="summary-box">
-                        <div class="summary-label">Notices</div>
-                        <div class="summary-value">3</div>
+                        <div class="summary-label">Recorded This Month</div>
+                        <div class="summary-value"><?= $monthlyCaseCount ?></div>
                     </div>
                 </div>
 
                 <div class="records-panel">
-                    <h3>Recent Conduct Records</h3>
+                    <h3>My Conduct Cases</h3>
                     <ul class="record-list">
-                        <li>
-                            <span class="record-name">Yellow Slip</span>
-                            <span class="record-date">Sept. 20, 2026</span>
-                        </li>
-                        <li>
-                            <span class="record-name">Warning</span>
-                            <span class="record-date">Sept. 25, 2026</span>
-                        </li>
+                        <?php if (!$studentCases): ?>
+                            <li><span class="record-name">Wala pang naitatalang case.</span></li>
+                        <?php else: ?>
+                            <?php foreach ($studentCases as $case): ?>
+                                <li class="student-case-row">
+                                    <div class="student-case-copy">
+                                        <span class="record-name"><?= $escape($case['case_title']) ?></span>
+                                        <p><?= nl2br($escape($case['description'])) ?></p>
+                                    </div>
+                                    <span class="record-date"><?= $escape(date('M j, Y', strtotime($case['incident_date']))) ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </section>
