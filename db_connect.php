@@ -1,46 +1,29 @@
 <?php
-$host = "localhost";
-$db_name = "login_system";
-$db_user = "root";
-$db_pass = "";
+/**
+ * db_connect.php
+ * Koneksyon lang sa database ang trabaho nito. Walang ibang ginagawa.
+ * (Ang paggawa ng tables ay nasa setup.sql, hindi na dito.)
+ *
+ * Pagkatapos i-require ito, may variable ka nang $pdo na pwedeng gamitin.
+ */
+
+$host   = 'localhost';
+$dbName = 'login_system';
+$dbUser = 'root';   // default ng XAMPP
+$dbPass = '';       // default ng XAMPP (walang password)
 
 try {
-    $connection = new PDO(
-        "mysql:host=$host;charset=utf8mb4",
-        $db_user,
-        $db_pass
-    );
-    $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $connection->exec("CREATE DATABASE IF NOT EXISTS `{$db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$db_name;charset=utf8mb4",
-        $db_user,
-        $db_pass
+        "mysql:host=$host;dbname=$dbName;charset=utf8mb4",
+        $dbUser,
+        $dbPass,
+        [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // ipakita ang SQL errors
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // array na may pangalan ng column
+        ]
     );
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
-        id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-        gmail VARCHAR(150) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        role ENUM('student','staff','admin') NOT NULL DEFAULT 'student',
-        full_name VARCHAR(150) DEFAULT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        UNIQUE KEY uk_users_gmail (gmail)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
-    $defaultStaffEmail = 'staff@gmail.com';
-    $defaultStaffPassword = 'staff123';
-    $staffCheck = $pdo->prepare("SELECT id FROM users WHERE gmail = ?");
-    $staffCheck->execute([$defaultStaffEmail]);
-
-    if (!$staffCheck->fetch()) {
-        $staffInsert = $pdo->prepare("INSERT INTO users (gmail, password, role, full_name) VALUES (?, ?, 'staff', 'Staff User')");
-        $staffInsert->execute([$defaultStaffEmail, md5($defaultStaffPassword)]);
-    }
 } catch (PDOException $e) {
-    die("Hindi kumonekta sa database: " . $e->getMessage());
+    // The real reason is in the Apache error log (xampp/apache/logs/error.log)
+    error_log('DB connection failed: ' . $e->getMessage());
+    die('Unable to connect to the database. Is MySQL running in XAMPP, and have you created the required setup?');
 }
-?>
