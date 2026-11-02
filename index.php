@@ -12,34 +12,64 @@
 session_start();
 require 'db_connect.php';
 
-// Isang lugar lang para sa mga role. Kung may idadagdag na role,
-// dito lang magdadagdag:  'value' => [label, icon, dashboard page]
+// Isang lugar lang para sa mga role. 'value' => [label, icon, dashboard page]
 $roles = [
     'student' => ['Student', 'fa-user-graduate', 'student.php'],
-    'staff'   => ['Staff',   'fa-user-tie',      'staff.php'],
-    'admin'   => ['Admin',   'fa-shield-halved', 'admin.php'],
+    'discipline_committee' => ['Discipline Committee', 'fa-user-tie', 'staff.php'],
+    'guidance_counselor' => ['Guidance Councilor', 'fa-user-tie', 'staff.php'],
+    'school_head' => ['School Head', 'fa-user-shield', 'admin.php'],
+];
+$databaseRoles = [
+    'student' => ['student'],
+    'discipline_committee' => ['discipline_committee', 'staff', 'teacher'],
+    'guidance_counselor' => ['guidance_counselor', 'guidance_councilor', 'staff', 'teacher'],
+    'school_head' => ['school_head', 'admin'],
 ];
 
 // Kung naka-login na, huwag nang ipakita ulit ang login form
-if (isset($_SESSION['role'], $roles[$_SESSION['role']])) {
-    header('Location: ' . $roles[$_SESSION['role']][2]);
-    exit();
+if (isset($_SESSION['role'])) {
+    $sessionRole = $_SESSION['role'];
+    if (in_array($sessionRole, ['staff', 'teacher', 'discipline_committee', 'guidance_counselor', 'guidance_councilor'], true)) {
+        if (in_array($sessionRole, ['discipline_committee', 'guidance_counselor', 'guidance_councilor'], true)) {
+            $_SESSION['staff_category'] = $sessionRole === 'guidance_councilor'
+                ? 'guidance_counselor'
+                : $sessionRole;
+        }
+        header('Location: staff.php');
+        exit();
+    } elseif ($sessionRole === 'admin') {
+        $sessionRole = 'school_head';
+    }
+
+    if (isset($roles[$sessionRole])) {
+        header('Location: ' . $roles[$sessionRole][2]);
+        exit();
+    }
 }
 
 $error        = '';
 $email        = '';
-$selectedRole = 'student';
+$selectedAccountType = 'student';
+$selectedStaffCategory = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email        = trim($_POST['email'] ?? '');
     $password     = $_POST['password'] ?? '';
-    $selectedRole = $_POST['userType'] ?? 'student';
+    $selectedAccountType = $_POST['userType'] ?? 'student';
+    $selectedStaffCategory = $_POST['staffCategory'] ?? '';
+    $selectedRole = $selectedAccountType === 'staff'
+        ? $selectedStaffCategory
+        : $selectedAccountType;
 
     if ($email === '' || $password === '') {
         $error = 'Please enter both the email and password.';
-    } elseif (!isset($roles[$selectedRole])) {
+    } elseif (!in_array($selectedAccountType, ['student', 'staff'], true)
+              || !is_string($selectedRole)
+              || !isset($roles[$selectedRole])) {
         $error = 'Please select a valid role.';
-        $selectedRole = 'student';
+        $selectedAccountType = 'student';
+    } elseif ($selectedAccountType === 'staff' && !in_array($selectedStaffCategory, ['discipline_committee', 'guidance_counselor', 'school_head'], true)) {
+        $error = 'Please select a valid staff category.';
     } else {
         $stmt = $pdo->prepare('SELECT id, gmail, password, role FROM users WHERE gmail = ?');
         $stmt->execute([$email]);
@@ -49,15 +79,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Single message for either invalid email or invalid password
             // to avoid revealing whether an email exists.
             $error = 'Incorrect email or password.';
-        } elseif ($user['role'] !== $selectedRole) {
+        } elseif (!in_array($user['role'], $databaseRoles[$selectedRole], true)) {
             $error = 'The selected role does not match this account.';
         } else {
             session_regenerate_id(true);   // bagong session ID para sa seguridad
             $_SESSION['user_id'] = (int) $user['id'];
             $_SESSION['gmail']   = $user['gmail'];
-            $_SESSION['role']    = $user['role'];
+            $_SESSION['role']    = in_array($selectedRole, ['discipline_committee', 'guidance_counselor'], true)
+                ? 'staff'
+                : $selectedRole;
+            if (in_array($selectedRole, ['discipline_committee', 'guidance_counselor'], true)) {
+                $_SESSION['staff_category'] = $selectedRole;
+            } else {
+                unset($_SESSION['staff_category']);
+            }
 
-            header('Location: ' . $roles[$user['role']][2]);
+            header('Location: ' . $roles[$selectedRole][2]);
             exit();
         }
     }
@@ -94,13 +131,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <div class="role-selector" aria-label="Select account type">
-                    <?php foreach ($roles as $value => [$label, $icon]): ?>
+                    <?php foreach (['student' => ['Student', 'fa-user-graduate'], 'staff' => ['Staff', 'fa-user-tie']] as $value => [$label, $icon]): ?>
                         <label class="role-option">
                             <input type="radio" name="userType" value="<?= $value ?>"
-                                <?= $value === $selectedRole ? 'checked' : '' ?>>
+                                <?= $value === $selectedAccountType ? 'checked' : '' ?>>
                             <span><i class="fas <?= $icon ?>"></i> <?= $label ?></span>
                         </label>
                     <?php endforeach; ?>
+                </div>
+
+                <div class="staff-category-field" id="staffCategoryField"
+                     <?= $selectedAccountType === 'staff' ? '' : 'hidden' ?>>
+                    <label for="staffCategory">Staff category</label>
+                    <select name="staffCategory" id="staffCategory">
+                        <option value="">Select your staff category</option>
+                        <?php foreach ([
+                            'discipline_committee' => 'Discipline Committee',
+                            'guidance_counselor' => 'Guidance Councilor',
+                            'school_head' => 'School Head',
+                        ] as $value => $label): ?>
+                            <option value="<?= $value ?>"
+                                <?= $selectedStaffCategory === $value ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($label) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
                 <div class="input-group">

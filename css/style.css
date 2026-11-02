@@ -70,7 +70,7 @@ body {
     box-shadow: 0 12px 24px rgba(13, 148, 136, 0.22);
 }
 
-.brand-icon.admin {
+.brand-icon.school_head {
     background: linear-gradient(135deg, #7c3aed, #a78bfa);
     box-shadow: 0 12px 24px rgba(124, 58, 237, 0.22);
 }
@@ -98,7 +98,7 @@ body {
 
 .role-selector {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.6rem;
     margin-bottom: 1.2rem;
 }
@@ -136,6 +136,40 @@ body {
     border-color: #60a5fa;
     color: #1d4ed8;
     box-shadow: 0 8px 18px rgba(96, 165, 250, 0.18);
+}
+
+.staff-category-field {
+    margin-bottom: 1.2rem;
+}
+
+.staff-category-field[hidden] {
+    display: none;
+}
+
+.staff-category-field label {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.staff-category-field select {
+    width: 100%;
+    height: 56px;
+    padding: 0 1rem;
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 0.96rem;
+    outline: none;
+}
+
+.staff-category-field select:focus {
+    border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
 }
 
 .input-group {

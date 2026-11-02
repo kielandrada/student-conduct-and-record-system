@@ -2,13 +2,13 @@
 /**
  * staff.php  —  STAFF DASHBOARD
  * Dito nagtatala ang staff ng student conduct cases.
- * Para lang sa naka-login na may role na "staff".
+ * Para lang sa naka-login na staff.
  */
 
 session_start();
 
 // Guard
-if (($_SESSION['role'] ?? '') !== 'staff') {
+if (!in_array($_SESSION['role'] ?? '', ['staff', 'teacher', 'discipline_committee', 'guidance_counselor', 'guidance_councilor'], true)) {
     header('Location: index.php');
     exit();
 }
@@ -22,6 +22,12 @@ if (!isset($_SESSION['case_csrf_token'])) {
     $_SESSION['case_csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['case_csrf_token'];
+$staffCategories = [
+    'discipline_committee' => 'Discipline Committee',
+    'guidance_counselor' => 'Guidance Councilor',
+];
+$selectedStaffCategory = $_SESSION['staff_category'] ?? '';
+$staffCategoryLabel = $staffCategories[$selectedStaffCategory] ?? 'Staff';
 
 // Listahan ng students para sa dropdown
 $students = $pdo->query("SELECT id, gmail, full_name FROM users WHERE role = 'student' ORDER BY gmail")->fetchAll();
@@ -116,7 +122,7 @@ $saved = isset($_GET['saved']);
         <!-- ============ MAIN CONTENT ============ -->
         <main class="dashboard-main" id="dashboard">
             <header class="dashboard-header">
-                <div class="header-title">Staff Case Management</div>
+                <div class="header-title">Staff Case Management - <?= $escape($staffCategoryLabel) ?></div>
                 <div class="header-user">👤 <?= $escape($_SESSION['gmail']) ?></div>
             </header>
 

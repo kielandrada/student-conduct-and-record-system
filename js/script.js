@@ -2,6 +2,8 @@
 document.addEventListener('DOMContentLoaded', function () {
   // Get all role options so we can detect which one is selected.
   const roleInputs = document.querySelectorAll('input[name="userType"]');
+  const staffCategoryField = document.getElementById('staffCategoryField');
+  const staffCategory = document.getElementById('staffCategory');
 
   // These elements will change depending on the selected role.
   const signInButton = document.getElementById('signInButton');
@@ -13,14 +15,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Map each role to its label and icon.
   const roleText = {
     student: 'Student',
-    staff: 'Staff',
-    admin: 'Admin'
+    staff: 'Staff'
   };
 
   const roleIcons = {
     student: 'fas fa-user-graduate',
-    staff: 'fas fa-user-tie',
-    admin: 'fas fa-shield-halved'
+    staff: 'fas fa-user-tie'
   };
 
   // Update the system text and icon when the user picks a role.
@@ -32,23 +32,36 @@ document.addEventListener('DOMContentLoaded', function () {
     formTitle.textContent = `${label} Portal`;
     subtitle.textContent = `Sign in as ${label.toLowerCase()} to continue`;
 
-    brandIcon.classList.remove('student', 'staff', 'admin');
+    brandIcon.classList.remove('student', 'staff');
     brandIcon.classList.add(role);
     brandIconElement.className = iconClass;
+  }
+
+  function updateStaffCategory() {
+    const isStaff = document.querySelector('input[name="userType"]:checked')?.value === 'staff';
+    staffCategoryField.hidden = !isStaff;
+    staffCategory.required = isStaff;
+    if (isStaff) {
+      const selectedLabel = staffCategory.options[staffCategory.selectedIndex]?.text;
+      signInButton.textContent = selectedLabel && staffCategory.value
+        ? `Sign In as ${selectedLabel}`
+        : 'Sign In as Staff';
+    }
   }
 
   // Listen for a role change and update the text right away.
   roleInputs.forEach((input) => {
     input.addEventListener('change', function () {
       setRole(this.value);
+      updateStaffCategory();
     });
   });
+  staffCategory.addEventListener('change', updateStaffCategory);
 
   // Apply the selected role when the page loads.
   const checkedRole = document.querySelector('input[name="userType"]:checked');
   if (checkedRole) {
     setRole(checkedRole.value);
   }
+  updateStaffCategory();
 });
-
-
