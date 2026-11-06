@@ -4,13 +4,8 @@
  * Para lang sa naka-login na may role na "student".
  */
 
-session_start();
-
-// Guard: kung hindi student ang naka-login, ibalik sa login page
-if (($_SESSION['role'] ?? '') !== 'student') {
-    header('Location: index.php');
-    exit();
-}
+require 'auth.php';
+requireLogin('student');   // student lang ang pwede dito
 
 require 'db_connect.php';
 
@@ -42,10 +37,12 @@ $counts = $stmt->fetch();
 
 // ---------- 3. Listahan ng cases ----------
 $stmt = $pdo->prepare(
-    'SELECT case_title, description, incident_date
-     FROM conduct_cases
-     WHERE student_id = ?
-     ORDER BY created_at DESC'
+    'SELECT c.case_title, c.description, c.consequence, c.incident_date,
+            ss.start_date AS suspension_start, ss.end_date AS suspension_end
+     FROM conduct_cases AS c
+     LEFT JOIN suspension_signatures AS ss ON ss.case_id = c.id
+     WHERE c.student_id = ?
+     ORDER BY c.created_at DESC'
 );
 $stmt->execute([$studentId]);
 $cases = $stmt->fetchAll();
@@ -123,6 +120,15 @@ $cases = $stmt->fetchAll();
                                 <div class="student-case-copy">
                                     <span class="record-name"><?= $escape($case['case_title']) ?></span>
                                     <p><?= nl2br($escape($case['description'])) ?></p>
+                                    <?php if ($case['consequence']): ?>
+                                        <p><strong>Consequence:</strong> <?= nl2br($escape($case['consequence'])) ?></p>
+                                    <?php endif; ?>
+                                    <?php if ($case['suspension_start']): ?>
+                                        <p><strong>Principal-signed suspension:</strong>
+                                            <?= $escape(date('M j, Y', strtotime($case['suspension_start']))) ?>
+                                            – <?= $escape(date('M j, Y', strtotime($case['suspension_end']))) ?>
+                                        </p>
+                                    <?php endif; ?>
                                 </div>
                                 <span class="record-date"><?= $escape(date('M j, Y', strtotime($case['incident_date']))) ?></span>
                             </li>

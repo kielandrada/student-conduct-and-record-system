@@ -18,12 +18,11 @@ try {
         $dbUser,
         $dbPass,
         [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // ipakita ang SQL errors
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // array na may pangalan ng column
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]
     );
 } catch (PDOException $e) {
-    // The real reason is in the Apache error log (xampp/apache/logs/error.log)
     error_log('DB connection failed: ' . $e->getMessage());
     die('Unable to connect to the database. Is MySQL running in XAMPP, and have you created the required setup?');
 }

@@ -15,17 +15,34 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     background: linear-gradient(135deg, #eef4ff 0%, #dfeeff 48%, #f8fbff 100%);
     padding: 1.5rem;
 }
 
+.login-content {
+    width: min(460px, 100%);
+    margin: auto;
+}
+
+.system-title {
+    max-width: 24ch;
+    margin: 0 auto 1.5rem;
+    color: #17345b;
+    font-size: clamp(1.35rem, 4vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+    text-align: center;
+}
+
 .login-card {
-    width: min(430px, 100%);
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-    padding: 2rem 1.75rem 1.75rem;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+    padding: 2rem;
     backdrop-filter: blur(8px);
 }
 
@@ -44,8 +61,10 @@ body {
 .brand-wrap {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
-    margin-bottom: 1.2rem;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-bottom: 1.6rem;
+    text-align: center;
 }
 
 .brand-icon {
@@ -80,7 +99,7 @@ body {
 }
 
 .form-title {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: #0f172a;
     letter-spacing: -0.04em;
@@ -93,14 +112,14 @@ body {
 }
 
 .login-form {
-    margin-top: 1.4rem;
+    margin-top: 0;
 }
 
 .role-selector {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem;
-    margin-bottom: 1.2rem;
+    gap: 0.75rem;
+    margin-bottom: 1.35rem;
 }
 
 .role-option {
@@ -121,12 +140,13 @@ body {
     justify-content: center;
     gap: 0.45rem;
     width: 100%;
-    padding: 0.8rem 0.5rem;
+    min-height: 48px;
+    padding: 0.75rem 0.6rem;
     border: 1px solid #d9e2f1;
-    border-radius: 12px;
+    border-radius: 11px;
     background: #f8fafc;
     color: #334155;
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     font-weight: 600;
     transition: all 0.2s ease;
 }
@@ -139,7 +159,7 @@ body {
 }
 
 .staff-category-field {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.25rem;
 }
 
 .staff-category-field[hidden] {
@@ -148,7 +168,7 @@ body {
 
 .staff-category-field label {
     display: block;
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.5rem;
     color: #475569;
     font-size: 0.85rem;
     font-weight: 600;
@@ -156,13 +176,13 @@ body {
 
 .staff-category-field select {
     width: 100%;
-    height: 56px;
-    padding: 0 1rem;
+    height: 52px;
+    padding: 0 0.9rem;
     border: 1px solid #dbe3ee;
-    border-radius: 14px;
-    background: #f8fafc;
+    border-radius: 11px;
+    background: #fbfcfe;
     color: #0f172a;
-    font-size: 0.96rem;
+    font-size: 0.94rem;
     outline: none;
 }
 
@@ -174,7 +194,7 @@ body {
 
 .input-group {
     position: relative;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
 }
 
 .input-group i {
@@ -189,10 +209,10 @@ body {
 
 .input-group input {
     width: 100%;
-    height: 56px;
+    height: 54px;
     border: 1px solid #dbe3ee;
-    border-radius: 14px;
-    background: #f8fafc;
+    border-radius: 11px;
+    background: #fbfcfe;
     color: #0f172a;
     font-size: 0.96rem;
     padding: 1.3rem 1rem 0.7rem 2.9rem;
@@ -255,8 +275,8 @@ body {
 .btn {
     width: 100%;
     border: none;
-    border-radius: 14px;
-    padding: 0.95rem 1rem;
+    border-radius: 11px;
+    padding: 0.9rem 1rem;
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -275,6 +295,21 @@ body {
 
 .btn:active {
     transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+    .login-page {
+        padding: 1rem;
+    }
+
+    .login-card {
+        padding: 1.5rem 1.25rem;
+        border-radius: 18px;
+    }
+
+    .system-title {
+        margin-bottom: 1.1rem;
+    }
 }
 
 .dashboard-body {
